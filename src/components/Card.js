@@ -75,20 +75,22 @@ export default class Card extends PureComponent {
         }
 
         if (dx < -180) {
-          props.swipeLeft()
+          props.swipeLeft();
         }
 
-        Animated.timing(this.translateXAnimValue, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true
-        }).start();
+        Animated.parallel([
+          Animated.timing(this.translateXAnimValue, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true
+          }),
 
           Animated.timing(this.rotateYAnimValue, {
-              toValue: 0,
-              duration: 1000,
-              useNativeDriver: true
-          }).start();
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true
+          })
+        ]).start();
 
         // console.log("evt", evt);
         // console.log("onPanResponderRelease", gestureState);
@@ -114,32 +116,32 @@ export default class Card extends PureComponent {
 
     this.rotateYAnimValue = new Animated.Value(0);
     this.translateXAnimValue = new Animated.Value(0);
-    this.scaleAnimValue = new Animated.Value(0);
+    this.translateYAnimValue = new Animated.Value(-15);
 
     this.rotateY = this.rotateYAnimValue.interpolate({
       inputRange: [0, 1],
       outputRange: ["0deg", "-15deg"]
     });
 
-    // this.translateX = this.translateXAnimValue.interpolate({
-    //   inputRange: [0, 1],
-    //   outputRange: [0, 350]
-    // });
-
-    this.scal = this.scaleAnimValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [1, 1.05]
-    });
-
     this.state = {
-      scaleAnim: this.scal,
       rotateYAnim: this.rotateY,
-      translateXAnim: this.translateXAnimValue
+      translateXAnim: this.translateXAnimValue,
+      translateYAnim: this.translateYAnimValue
     };
   }
 
   render() {
     const { idx = 0, backgroundColor = "green" } = this.props;
+
+    this.translateYAnimValue.setValue(-15);
+
+
+    Animated.timing(this.translateYAnimValue, {
+      toValue: 0,
+      duration: 1000,
+      useNativeDriver: true
+    }).start();
+
 
     return (
       <Animated.View
@@ -147,11 +149,11 @@ export default class Card extends PureComponent {
           styles.cardContainer,
           {
             backgroundColor,
-            top: idx * 20,
+            top: idx * 15,
             transform: [
-              // { scale: this.state.scaleAnim },
               { rotate: this.state.rotateYAnim },
-              { translateX: this.state.translateXAnim }
+              { translateX: this.state.translateXAnim },
+              { translateY: this.state.translateYAnim }
               // { perspective: 1000 } // without this line this Animation will not render on Android while working fine on iOS
             ]
           }
