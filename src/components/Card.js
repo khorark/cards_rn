@@ -74,6 +74,10 @@ export default class Card extends PureComponent {
           props.swipeRight();
         }
 
+        if (dx < 120) {
+          props.swipeLeft()
+        }
+
         Animated.timing(this.translateXAnimValue, {
           toValue: 0,
           duration: 1000,

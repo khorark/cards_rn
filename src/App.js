@@ -37,11 +37,11 @@ export default class App extends Component<Props> {
       <View style={styles.container}>
         {orderCards.map((id, idx) => (
           <Card
-              id={id}
             key={id}
             idx={idx}
             backgroundColor={cards[id].backgroundColor}
             swipeRight={this._cardSwipeRight}
+            swipeLeft={this._cardSwipeLeft}
           />
         ))}
       </View>
@@ -53,7 +53,14 @@ export default class App extends Component<Props> {
         const lastCard = orderCardsRaw.pop();
         const orderCards = [ lastCard, ...orderCardsRaw ];
         this.setState({ orderCards })
-  }
+  };
+
+  _cardSwipeLeft = () => {
+    const orderCardsRaw = [...this.state.orderCards];
+    const firstCard = orderCardsRaw.shift();
+    const orderCards = [ ...orderCardsRaw, firstCard ];
+    this.setState({ orderCards })
+  };
 }
 
 const styles = StyleSheet.create({
