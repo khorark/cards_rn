@@ -52,12 +52,12 @@ export default class Card extends PureComponent {
         // gestureState.d{x,y} will be set to zero now
       },
       onPanResponderMove: (evt, gestureState) => {
-        const dx = gestureState.dx;
+        const dx = gestureState.dx > 200 ? 200 : gestureState.dx;
         console.log("dx", dx);
-        const rotate = gestureState.dx / -10;
+        const rotate = gestureState.dx / 200;
 
         this.translateXAnimValue.setValue(dx);
-        this.rotateYAnimValue.setValue(`${rotate}deg`);
+        this.rotateYAnimValue.setValue(rotate);
 
         // console.log("evt", evt);
         // console.log("gestureState", gestureState);
@@ -70,11 +70,11 @@ export default class Card extends PureComponent {
         console.log("onPanResponderTerminationRequest");
         const dx = gestureState.dx;
 
-        if (dx > 120) {
+        if (dx > 180) {
           props.swipeRight();
         }
 
-        if (dx < 120) {
+        if (dx < -180) {
           props.swipeLeft()
         }
 
@@ -83,6 +83,12 @@ export default class Card extends PureComponent {
           duration: 1000,
           useNativeDriver: true
         }).start();
+
+          Animated.timing(this.rotateYAnimValue, {
+              toValue: 0,
+              duration: 1000,
+              useNativeDriver: true
+          }).start();
 
         // console.log("evt", evt);
         // console.log("onPanResponderRelease", gestureState);
@@ -106,7 +112,7 @@ export default class Card extends PureComponent {
       }
     });
 
-    this.rotateYAnimValue = new Animated.Value("0deg");
+    this.rotateYAnimValue = new Animated.Value(0);
     this.translateXAnimValue = new Animated.Value(0);
     this.scaleAnimValue = new Animated.Value(0);
 
@@ -127,7 +133,7 @@ export default class Card extends PureComponent {
 
     this.state = {
       scaleAnim: this.scal,
-      rotateYAnim: this.rotateYAnimValue,
+      rotateYAnim: this.rotateY,
       translateXAnim: this.translateXAnimValue
     };
   }
@@ -144,7 +150,7 @@ export default class Card extends PureComponent {
             top: idx * 20,
             transform: [
               // { scale: this.state.scaleAnim },
-              // { rotate: this.state.rotateYAnim },
+              { rotate: this.state.rotateYAnim },
               { translateX: this.state.translateXAnim }
               // { perspective: 1000 } // without this line this Animation will not render on Android while working fine on iOS
             ]
