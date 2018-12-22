@@ -54,8 +54,10 @@ export default class Card extends PureComponent {
       onPanResponderMove: (evt, gestureState) => {
         const dx = gestureState.dx;
         console.log("dx", dx);
+        const rotate = gestureState.dx / -10;
 
-        this.translateXAnimValue.setValue(gestureState.dx);
+        this.translateXAnimValue.setValue(dx);
+        this.rotateYAnimValue.setValue(`${rotate}deg`);
 
         // console.log("evt", evt);
         // console.log("gestureState", gestureState);
@@ -66,6 +68,18 @@ export default class Card extends PureComponent {
       onPanResponderTerminationRequest: (evt, gestureState) => true,
       onPanResponderRelease: (evt, gestureState) => {
         console.log("onPanResponderTerminationRequest");
+        const dx = gestureState.dx;
+
+        if (dx > 120) {
+          props.swipeRight();
+        }
+
+        Animated.timing(this.translateXAnimValue, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true
+        }).start();
+
         // console.log("evt", evt);
         // console.log("onPanResponderRelease", gestureState);
         // The user has released all touches while this view is the
@@ -88,7 +102,7 @@ export default class Card extends PureComponent {
       }
     });
 
-    this.rotateYAnimValue = new Animated.Value(0);
+    this.rotateYAnimValue = new Animated.Value("0deg");
     this.translateXAnimValue = new Animated.Value(0);
     this.scaleAnimValue = new Animated.Value(0);
 
@@ -109,7 +123,7 @@ export default class Card extends PureComponent {
 
     this.state = {
       scaleAnim: this.scal,
-      rotateYAnim: this.rotateY,
+      rotateYAnim: this.rotateYAnimValue,
       translateXAnim: this.translateXAnimValue
     };
   }
@@ -125,8 +139,8 @@ export default class Card extends PureComponent {
             backgroundColor,
             top: idx * 20,
             transform: [
-              { scale: this.state.scaleAnim },
-              { rotate: this.state.rotateYAnim },
+              // { scale: this.state.scaleAnim },
+              // { rotate: this.state.rotateYAnim },
               { translateX: this.state.translateXAnim }
               // { perspective: 1000 } // without this line this Animation will not render on Android while working fine on iOS
             ]
