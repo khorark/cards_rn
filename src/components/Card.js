@@ -15,7 +15,36 @@ export default class Card extends PureComponent {
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
 
       onPanResponderGrant: (evt, gestureState) => {
-        console.warn("onPanResponderGrant");
+        console.log("onPanResponderGrant");
+        // Animated.parallel([
+        //   Animated.timing(this.rotateYAnimValue, {
+        //     toValue: 1,
+        //     duration: 2000,
+        //     useNativeDriver: true
+        //   }),
+        //   Animated.timing(this.translateXAnimValue, {
+        //     toValue: 1,
+        //     duration: 2000,
+        //     useNativeDriver: true
+        //   })
+        // ]).start();
+        //
+        // setTimeout(() => {
+        //   props.swipeRight();
+        //
+        //   Animated.parallel([
+        //     Animated.timing(this.rotateYAnimValue, {
+        //       toValue: 0,
+        //       duration: 2000,
+        //       useNativeDriver: true
+        //     }),
+        //     Animated.timing(this.translateXAnimValue, {
+        //       toValue: 0,
+        //       duration: 2000,
+        //       useNativeDriver: true
+        //     }),
+        //   ]).start();
+        // }, 2000);
         // console.log("evt", evt);
         // console.log("gestureState", gestureState);
         // The gesture has started. Show visual feedback so the user knows
@@ -23,7 +52,11 @@ export default class Card extends PureComponent {
         // gestureState.d{x,y} will be set to zero now
       },
       onPanResponderMove: (evt, gestureState) => {
-        console.warn("onPanResponderMove");
+        const dx = gestureState.dx;
+        console.log("dx", dx);
+
+        this.translateXAnimValue.setValue(gestureState.dx);
+
         // console.log("evt", evt);
         // console.log("gestureState", gestureState);
         // The most recent move distance is gestureState.move{X,Y}
@@ -32,21 +65,21 @@ export default class Card extends PureComponent {
       },
       onPanResponderTerminationRequest: (evt, gestureState) => true,
       onPanResponderRelease: (evt, gestureState) => {
-        console.warn("onPanResponderTerminationRequest");
+        console.log("onPanResponderTerminationRequest");
         // console.log("evt", evt);
         // console.log("onPanResponderRelease", gestureState);
         // The user has released all touches while this view is the
         // responder. This typically means a gesture has succeeded
       },
       onPanResponderTerminate: (evt, gestureState) => {
-        console.warn("onPanResponderTerminate");
+        console.log("onPanResponderTerminate");
         // console.log("evt", evt);
         // console.log("onPanResponderRelease", gestureState);
         // Another component has become the responder, so this gesture
         // should be cancelled
       },
       onShouldBlockNativeResponder: (evt, gestureState) => {
-        console.warn("onShouldBlockNativeResponder");
+        console.log("onShouldBlockNativeResponder");
         // console.log("evt", evt);
         // console.log("onPanResponderRelease", gestureState);
         // Returns whether this component should block native components from becoming the JS
@@ -57,56 +90,28 @@ export default class Card extends PureComponent {
 
     this.rotateYAnimValue = new Animated.Value(0);
     this.translateXAnimValue = new Animated.Value(0);
+    this.scaleAnimValue = new Animated.Value(0);
 
     this.rotateY = this.rotateYAnimValue.interpolate({
       inputRange: [0, 1],
-      outputRange: ["0deg", "-30deg"]
+      outputRange: ["0deg", "-15deg"]
     });
 
-    this.translateX = this.translateXAnimValue.interpolate({
+    // this.translateX = this.translateXAnimValue.interpolate({
+    //   inputRange: [0, 1],
+    //   outputRange: [0, 350]
+    // });
+
+    this.scal = this.scaleAnimValue.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 150]
+      outputRange: [1, 1.05]
     });
 
     this.state = {
-      scaleAnim: new Animated.Value(0),
+      scaleAnim: this.scal,
       rotateYAnim: this.rotateY,
-      translateXAnim: this.translateX
+      translateXAnim: this.translateXAnimValue
     };
-  }
-
-  componentDidMount() {
-    // Animated.timing(
-    //   // Animate over time
-    //   this.state.scaleAnim, // The animated value to drive
-    //   {
-    //     toValue: 1, // Animate to opacity: 1 (opaque)
-    //     duration: 2000, // Make it take a while
-    //     useNativeDriver: true
-    //   }
-    // ).start(); // Starts the animation
-
-    // Animated.timing(
-    //   this.rotateYAnim,
-    //   {
-    //     toValue: 1,
-    //     duration: 2000,
-    //     useNativeDriver: true
-    //   }
-    // ).start(); // Starts the animation
-
-      Animated.parallel([
-          Animated.timing(this.rotateYAnimValue, {
-              toValue: 1,
-              duration: 2000,
-              useNativeDriver: true
-          }),
-          Animated.timing(this.translateXAnimValue, {
-              toValue: 1,
-              duration: 2000,
-              useNativeDriver: true
-          })
-      ]).start();
   }
 
   render() {
@@ -120,9 +125,9 @@ export default class Card extends PureComponent {
             backgroundColor,
             top: idx * 20,
             transform: [
-              // { scale: this.state.scaleAnim },
+              { scale: this.state.scaleAnim },
               { rotate: this.state.rotateYAnim },
-              { translateX: this.state.translateXAnim },
+              { translateX: this.state.translateXAnim }
               // { perspective: 1000 } // without this line this Animation will not render on Android while working fine on iOS
             ]
           }

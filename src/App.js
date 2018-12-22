@@ -37,13 +37,22 @@ export default class App extends Component<Props> {
       <View style={styles.container}>
         {orderCards.map((id, idx) => (
           <Card
+              id={id}
             key={id}
             idx={idx}
             backgroundColor={cards[id].backgroundColor}
+            swipeRight={this._cardSwipeRight}
           />
         ))}
       </View>
     );
+  }
+
+  _cardSwipeRight = () => {
+        const orderCardsRaw = [...this.state.orderCards];
+        const lastCard = orderCardsRaw.pop();
+        const orderCards = [ lastCard, ...orderCardsRaw ];
+        this.setState({ orderCards })
   }
 }
 
