@@ -13,26 +13,27 @@ import Card from "./components/Card";
 type Props = {};
 export default class App extends Component<Props> {
   state = {
-    cards: {
-      1: {
-        backgroundColor: "red"
-      },
-      2: {
-        backgroundColor: "green"
-      },
-      3: {
-        backgroundColor: "orange"
-      },
-      4: {
-        backgroundColor: "blue"
-      }
-    },
     orderCards: [1, 2, 3, 4],
     isSwipeLeft: false,
   };
 
+  CARDS = {
+    1: {
+      backgroundColor: "red"
+    },
+    2: {
+      backgroundColor: "green"
+    },
+    3: {
+      backgroundColor: "orange"
+    },
+    4: {
+      backgroundColor: "blue"
+    }
+  };
+
   render() {
-    const { cards, orderCards } = this.state;
+    const { orderCards, isSwipeLeft } = this.state;
 
     return (
       <View style={styles.container}>
@@ -40,10 +41,11 @@ export default class App extends Component<Props> {
           <Card
             key={id}
             idx={idx}
-            backgroundColor={cards[id].backgroundColor}
+            backgroundColor={this.CARDS[id].backgroundColor}
             swipeRight={this._cardSwipeRight}
             swipeLeft={this._cardSwipeLeft}
-            isSwipeLeft={this.state.isSwipeLeft}
+            isSwipeLeft={isSwipeLeft}
+            lostIndex={orderCards.length - 1}
           />
         ))}
       </View>
