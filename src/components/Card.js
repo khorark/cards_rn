@@ -3,13 +3,23 @@
  * @flow
  */
 import React, { PureComponent } from "react";
-import { StyleSheet, Animated, PanResponder, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  Animated,
+  PanResponder,
+  Dimensions,
+  Image
+} from "react-native";
 import type AnimatedValue from "react-native/Libraries/Animated/src/nodes/AnimatedValue";
 
 type Props = {
   idx: number,
   lostIndex: number,
-  backgroundColor: string,
+  image: string,
+  size: {
+    width: number,
+    height: number
+  },
   isSwipeLeft: boolean,
   swipeRight: () => void,
   swipeLeft: () => void
@@ -24,7 +34,7 @@ type State = {
 export default class Card extends PureComponent<Props, State> {
   constructor(props) {
     super(props);
-    const { width } = Dimensions.get('window');
+    const { width } = Dimensions.get("window");
 
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: this._onStartShouldSetPanResponder,
@@ -125,7 +135,11 @@ export default class Card extends PureComponent<Props, State> {
   }
 
   render() {
-    const { idx = 0, backgroundColor = "green" } = this.props;
+    const {
+      idx = 0,
+      image,
+      size: { width, height }
+    } = this.props;
     this._animatedPreRender();
 
     return (
@@ -133,7 +147,6 @@ export default class Card extends PureComponent<Props, State> {
         style={[
           styles.cardContainer,
           {
-            backgroundColor,
             top: idx * this.cardPadding,
             transform: [
               { rotate: this.state.rotateYAnim },
@@ -143,7 +156,14 @@ export default class Card extends PureComponent<Props, State> {
           }
         ]}
         {...this._panResponder.panHandlers}
-      />
+      >
+        <Image
+          source={image}
+          width={width}
+          height={height}
+          resizeMode={"cover"}
+        />
+      </Animated.View>
     );
   }
 }
