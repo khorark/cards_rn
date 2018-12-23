@@ -1,125 +1,41 @@
 /**
  * Created by arkadiy on 22.12.18.
+ * @flow
  */
 import React, { PureComponent } from "react";
-import { StyleSheet, Animated, PanResponder } from "react-native";
+import { StyleSheet, Animated, PanResponder, Dimensions } from "react-native";
+import type AnimatedValue from "react-native/Libraries/Animated/src/nodes/AnimatedValue";
 
-export default class Card extends PureComponent {
+type Props = {
+  idx: number,
+  lostIndex: number,
+  backgroundColor: string,
+  isSwipeLeft: boolean,
+  swipeRight: () => void,
+  swipeLeft: () => void
+};
+
+type State = {
+  rotateYAnim: AnimatedValue,
+  translateXAnim: AnimatedValue,
+  translateYAnim: AnimatedValue
+};
+
+export default class Card extends PureComponent<Props, State> {
   constructor(props) {
     super(props);
-    this.idx = props.idx;
+    const { width } = Dimensions.get('window');
+
     this._panResponder = PanResponder.create({
-      // Ask to be the responder:
-      onStartShouldSetPanResponder: (evt, gestureState) => this.idx === 3,
-      onMoveShouldSetPanResponder: (evt, gestureState) => this.idx === 3,
-
-      onPanResponderGrant: (evt, gestureState) => {
-        console.log("onPanResponderGrant");
-        // Animated.parallel([
-        //   Animated.timing(this.rotateYAnimValue, {
-        //     toValue: 1,
-        //     duration: 2000,
-        //     useNativeDriver: true
-        //   }),
-        //   Animated.timing(this.translateXAnimValue, {
-        //     toValue: 1,
-        //     duration: 2000,
-        //     useNativeDriver: true
-        //   })
-        // ]).start();
-        //
-        // setTimeout(() => {
-        //   props.swipeRight();
-        //
-        //   Animated.parallel([
-        //     Animated.timing(this.rotateYAnimValue, {
-        //       toValue: 0,
-        //       duration: 2000,
-        //       useNativeDriver: true
-        //     }),
-        //     Animated.timing(this.translateXAnimValue, {
-        //       toValue: 0,
-        //       duration: 2000,
-        //       useNativeDriver: true
-        //     }),
-        //   ]).start();
-        // }, 2000);
-        // console.log("evt", evt);
-        // console.log("gestureState", gestureState);
-        // The gesture has started. Show visual feedback so the user knows
-        // what is happening!
-        // gestureState.d{x,y} will be set to zero now
-      },
-      onPanResponderMove: (evt, gestureState) => {
-        const dx = gestureState.dx > 200 ? 200 : gestureState.dx;
-        const rotate = gestureState.dx / 200;
-
-        this.translateXAnimValue.setValue(dx);
-        this.rotateYAnimValue.setValue(rotate);
-
-        // console.log("evt", evt);
-        // console.log("gestureState", gestureState);
-        // The most recent move distance is gestureState.move{X,Y}
-        // The accumulated gesture distance since becoming responder is
-        // gestureState.d{x,y}
-      },
-      onPanResponderTerminationRequest: (evt, gestureState) => true,
-      onPanResponderRelease: (evt, gestureState) => {
-        console.log("onPanResponderTerminationRequest");
-        const dx = gestureState.dx;
-
-        if (dx > 180) {
-          props.swipeRight();
-        }
-
-        if (dx < -180) {
-          props.swipeLeft();
-        }
-
-        Animated.parallel([
-          Animated.timing(this.translateXAnimValue, {
-            toValue: 0,
-            duration: 1000,
-            useNativeDriver: true
-          }),
-
-          Animated.timing(this.rotateYAnimValue, {
-            toValue: 0,
-            duration: 1000,
-            useNativeDriver: true
-          })
-        ]).start();
-
-        // console.log("evt", evt);
-        // console.log("onPanResponderRelease", gestureState);
-        // The user has released all touches while this view is the
-        // responder. This typically means a gesture has succeeded
-      },
-      onPanResponderTerminate: (evt, gestureState) => {
-        console.log("onPanResponderTerminate");
-        // console.log("evt", evt);
-        // console.log("onPanResponderRelease", gestureState);
-        // Another component has become the responder, so this gesture
-        // should be cancelled
-      },
-      onShouldBlockNativeResponder: (evt, gestureState) => {
-        console.log("onShouldBlockNativeResponder");
-        // console.log("evt", evt);
-        // console.log("onPanResponderRelease", gestureState);
-        // Returns whether this component should block native components from becoming the JS
-        // responder. Returns true by default. Is currently only supported on android.
-        return true;
-      }
+      onStartShouldSetPanResponder: this._onStartShouldSetPanResponder,
+      onPanResponderMove: this._onPanResponderMove,
+      onPanResponderRelease: this._onPanResponderRelease
     });
 
-    this.rotateYAnimValue = new Animated.Value(0);
-    this.translateXAnimValue = new Animated.Value(0);
-    this.translateYAnimValue = new Animated.Value(-15);
-
-    this.rotateY = this.rotateYAnimValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: ["0deg", "-15deg"]
-    });
+    this._initAnimatedValues();
+    this.durationAnimaed = 1000;
+    this.cardPadding = 15;
+    this.width = width;
 
     this.state = {
       rotateYAnim: this.rotateY,
@@ -128,44 +44,89 @@ export default class Card extends PureComponent {
     };
   }
 
-  render() {
-    const {
-      idx = 0,
-      backgroundColor = "green",
-      isSwipeLeft = false
-    } = this.props;
-    this.idx = idx;
+  /**
+   * Инициализация начальных значений анимации
+   * @private
+   */
+  _initAnimatedValues = () => {
+    this.rotateYAnimValue = new Animated.Value(0);
+    this.translateXAnimValue = new Animated.Value(0);
+    this.translateYAnimValue = new Animated.Value(0);
 
-    if (isSwipeLeft && idx === 3) {
-      this.translateXAnimValue.setValue(200);
+    this.rotateY = this.rotateYAnimValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: ["0deg", "-15deg"]
+    });
+  };
 
+  _onStartShouldSetPanResponder = () => this.props.idx === this.props.lostIndex;
+  _onPanResponderMove = (_, { dx }) => {
+    dx = dx > this.width ? this.width : dx;
+    const rotate = dx / this.width;
+
+    this.translateXAnimValue.setValue(dx);
+    this.rotateYAnimValue.setValue(rotate);
+  };
+
+  _onPanResponderRelease = (_, { dx }) => {
+    if (dx > this.width / 2) {
+      this.props.swipeRight();
+    }
+
+    if (dx < -(this.width / 2)) {
+      this.props.swipeLeft();
+    }
+
+    Animated.parallel([
       Animated.timing(this.translateXAnimValue, {
         toValue: 0,
-        duration: 1000,
+        duration: this.durationAnimaed,
         useNativeDriver: true
-      }).start();
-    }
+      }),
 
-    if (!isSwipeLeft) {
-      console.log("idx", idx);
+      Animated.timing(this.rotateYAnimValue, {
+        toValue: 0,
+        duration: this.durationAnimaed,
+        useNativeDriver: true
+      })
+    ]).start();
+  };
 
-      this.translateYAnimValue.setValue(-15);
+  _animatedPreRender() {
+    const { idx = 0, lostIndex, isSwipeLeft = false } = this.props;
+
+    if (isSwipeLeft) {
+      this.translateYAnimValue.setValue(this.cardPadding);
 
       Animated.timing(this.translateYAnimValue, {
         toValue: 0,
-        duration: 1000,
+        duration: this.durationAnimaed,
         useNativeDriver: true
       }).start();
+
+      if (idx === lostIndex) {
+        this.translateXAnimValue.setValue(this.width);
+
+        Animated.timing(this.translateXAnimValue, {
+          toValue: 0,
+          duration: this.durationAnimaed,
+          useNativeDriver: true
+        }).start();
+      }
     } else {
-
-      this.translateYAnimValue.setValue(15);
+      this.translateYAnimValue.setValue(-this.cardPadding);
 
       Animated.timing(this.translateYAnimValue, {
         toValue: 0,
-        duration: 1000,
+        duration: this.durationAnimaed,
         useNativeDriver: true
       }).start();
     }
+  }
+
+  render() {
+    const { idx = 0, backgroundColor = "green" } = this.props;
+    this._animatedPreRender();
 
     return (
       <Animated.View
@@ -173,12 +134,11 @@ export default class Card extends PureComponent {
           styles.cardContainer,
           {
             backgroundColor,
-            top: idx * 15,
+            top: idx * this.cardPadding,
             transform: [
               { rotate: this.state.rotateYAnim },
               { translateX: this.state.translateXAnim },
               { translateY: this.state.translateYAnim }
-              // { perspective: 1000 } // without this line this Animation will not render on Android while working fine on iOS
             ]
           }
         ]}
@@ -190,8 +150,8 @@ export default class Card extends PureComponent {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width: "80%",
-    height: "80%",
+    width: "90%",
+    height: "90%",
     borderRadius: 10,
     overflow: "hidden",
     position: "absolute"
