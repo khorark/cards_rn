@@ -27,7 +27,8 @@ export default class App extends Component<Props> {
         backgroundColor: "blue"
       }
     },
-    orderCards: [1, 2, 3, 4]
+    orderCards: [1, 2, 3, 4],
+    isSwipeLeft: false,
   };
 
   render() {
@@ -42,6 +43,7 @@ export default class App extends Component<Props> {
             backgroundColor={cards[id].backgroundColor}
             swipeRight={this._cardSwipeRight}
             swipeLeft={this._cardSwipeLeft}
+            isSwipeLeft={this.state.isSwipeLeft}
           />
         ))}
       </View>
@@ -52,14 +54,14 @@ export default class App extends Component<Props> {
         const orderCardsRaw = [...this.state.orderCards];
         const lastCard = orderCardsRaw.pop();
         const orderCards = [ lastCard, ...orderCardsRaw ];
-        this.setState({ orderCards })
+        this.setState({ orderCards, isSwipeLeft: false, })
   };
 
   _cardSwipeLeft = () => {
     const orderCardsRaw = [...this.state.orderCards];
     const firstCard = orderCardsRaw.shift();
     const orderCards = [ ...orderCardsRaw, firstCard ];
-    this.setState({ orderCards })
+    this.setState({ orderCards, isSwipeLeft: true, })
   };
 }
 

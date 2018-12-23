@@ -7,12 +7,11 @@ import { StyleSheet, Animated, PanResponder } from "react-native";
 export default class Card extends PureComponent {
   constructor(props) {
     super(props);
+    this.idx = props.idx;
     this._panResponder = PanResponder.create({
       // Ask to be the responder:
-      onStartShouldSetPanResponder: (evt, gestureState) => true,
-      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-      onMoveShouldSetPanResponder: (evt, gestureState) => true,
-      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onStartShouldSetPanResponder: (evt, gestureState) => this.idx === 3,
+      onMoveShouldSetPanResponder: (evt, gestureState) => this.idx === 3,
 
       onPanResponderGrant: (evt, gestureState) => {
         console.log("onPanResponderGrant");
@@ -53,7 +52,6 @@ export default class Card extends PureComponent {
       },
       onPanResponderMove: (evt, gestureState) => {
         const dx = gestureState.dx > 200 ? 200 : gestureState.dx;
-        console.log("dx", dx);
         const rotate = gestureState.dx / 200;
 
         this.translateXAnimValue.setValue(dx);
@@ -131,17 +129,43 @@ export default class Card extends PureComponent {
   }
 
   render() {
-    const { idx = 0, backgroundColor = "green" } = this.props;
+    const {
+      idx = 0,
+      backgroundColor = "green",
+      isSwipeLeft = false
+    } = this.props;
+    this.idx = idx;
 
-    this.translateYAnimValue.setValue(-15);
+    if (isSwipeLeft && idx === 3) {
+      this.translateXAnimValue.setValue(200);
 
+      Animated.timing(this.translateXAnimValue, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true
+      }).start();
+    }
 
-    Animated.timing(this.translateYAnimValue, {
-      toValue: 0,
-      duration: 1000,
-      useNativeDriver: true
-    }).start();
+    if (!isSwipeLeft) {
+      console.log("idx", idx);
 
+      this.translateYAnimValue.setValue(-15);
+
+      Animated.timing(this.translateYAnimValue, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true
+      }).start();
+    } else {
+
+      this.translateYAnimValue.setValue(15);
+
+      Animated.timing(this.translateYAnimValue, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true
+      }).start();
+    }
 
     return (
       <Animated.View
