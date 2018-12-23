@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from "react";
-import { StyleSheet, View, StatusBar } from "react-native";
+import { SafeAreaView, StyleSheet, View, StatusBar } from "react-native";
 import Card from "./components/Card";
 
 type Props = {};
@@ -40,7 +40,7 @@ export default class App extends Component<Props> {
     const { orderCards, isSwipeLeft } = this.state;
 
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <StatusBar backgroundColor="#002137" />
         <View style={styles.cardsContainer}>
           {orderCards.map((id, idx) => (
@@ -56,7 +56,7 @@ export default class App extends Component<Props> {
             />
           ))}
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 

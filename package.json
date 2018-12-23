@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "android": "react-native run-android",
+    "ios": "react-native run-ios",
     "emulator": "cd /home/arkadiy/Android/Sdk/tools && ./emulator -avd Pixel_2_API_24",
     "test": "jest"
   },
